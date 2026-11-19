@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkulator wyceny wdrożenia OMS</title>
+<style>
+:root{--bg:#f3f5fa;--card:#fff;--tx:#161a24;--mu:#6a7385;--bd:#e3e7f0;--ac:#4f46e5;--ac2:#7c3aed;--acs:#eef0ff;--ok:#059669;--inp:#f6f7fb;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1117;--card:#181b25;--tx:#eceef4;--mu:#9099ad;--bd:#272c3a;--ac:#8b85ff;--ac2:#a78bfa;--acs:#232748;--ok:#34d399;--inp:#11141c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1117;--card:#181b25;--tx:#eceef4;--mu:#9099ad;--bd:#272c3a;--ac:#8b85ff;--ac2:#a78bfa;--acs:#232748;--ok:#34d399;--inp:#11141c;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.hero{background:linear-gradient(120deg,#4f46e5,#7c3aed 60%,#c026d3);color:#fff;padding:28px 16px 70px}
+.in{max-width:1040px;margin:0 auto}
+.hero h1{margin:0 0 6px;font-size:26px;letter-spacing:-.02em}
+.hero p{margin:0;opacity:.85;max-width:560px}
+.badge{display:inline-block;background:rgba(255,255,255,.18);border-radius:99px;padding:3px 12px;font-size:12px;margin-bottom:10px;font-weight:600}
+.wrap{max-width:1040px;margin:-48px auto 0;padding:0 16px 40px}
+.grid{display:grid;grid-template-columns:1fr 350px;gap:18px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:6px 18px 10px;margin-bottom:16px;box-shadow:0 6px 24px rgba(30,30,80,.06)}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin:14px 0 4px}
+.row{display:grid;grid-template-columns:38px 1fr auto 84px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--bd)}
+h2+.row{border-top:0}
+.ic{width:38px;height:38px;border-radius:11px;background:var(--acs);display:grid;place-items:center;font-size:18px}
+.row b{font-weight:600}.row small{display:block;color:var(--mu);font-size:12.5px}
+.pr{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pr.free{color:var(--ok)}.pr.off{color:var(--mu);font-weight:400}
+@media(max-width:520px){.row{grid-template-columns:38px 1fr auto}.pr{grid-column:2/4;text-align:left}.row{row-gap:6px}}
+.st{display:flex;align-items:center;border:1px solid var(--bd);border-radius:10px;background:var(--inp);overflow:hidden}
+.st button{all:unset;cursor:pointer;width:32px;height:34px;text-align:center;font-size:18px;color:var(--ac)}
+.st button:hover{background:var(--acs)}
+.st input{width:42px;text-align:center;border:0;background:transparent;font:inherit;color:var(--tx);padding:0;-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sw{position:relative;width:46px;height:26px;display:block}
+.sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;background:var(--bd);border-radius:99px;transition:.2s}
+.sw i:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw input:checked+i{background:var(--ac)}.sw input:checked+i:after{left:23px}
+.fld{font:inherit;color:var(--tx);background:var(--inp);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;width:100%}
+.mn{position:relative;width:130px}.mn input{text-align:right;padding-right:28px}.mn:after{content:"zł";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px}
+.sum{position:sticky;top:calc(12px + env(safe-area-inset-top,0px))}
+.sum .card{padding:18px}
+.sum h2{margin:0 0 10px}
+.meta{display:grid;gap:8px;margin-bottom:12px}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
+.ln span{color:var(--mu)}.ln b{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sep{border-top:1px dashed var(--bd);margin:8px 0}
+.tot{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border-radius:14px;padding:14px 16px;margin-top:10px}
+.tot .ln span{color:rgba(255,255,255,.8)}.tot .ln b{color:#fff}
+.tot .big{font-size:26px;letter-spacing:-.02em}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.btn{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:9px;cursor:pointer;font-weight:600}
+.btn.p{background:var(--ac);color:#fff;border-color:var(--ac);grid-column:1/3}
+.note{font-size:12px;color:var(--mu);margin-top:10px}
+@media print{body{background:#fff}.hero,.left,.btns{display:none}.wrap{margin:0}.grid{display:block}.sum{position:static}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="hero"><div class="in"><span class="badge">OMS · wdrożenia</span><h1>Kalkulator wyceny wdrożenia OMS</h1><p>Zaznacz zakres projektu, a wycena przeliczy się na bieżąco. Gotowe zestawienie skopiujesz lub wydrukujesz do PDF.</p></div></div>
+<div class="wrap"><div class="grid">
+<div class="left">
+<div class="card"><h2>Pakiet podstawowy</h2>
+<div class="row"><div class="ic">📦</div><div><b>Allegro + InPost</b><small>Allegro bez limitu kont klienta</small></div><span></span><div class="pr">7 000 zł</div></div></div>
+<div id="cards"></div>
+</div>
+<div class="sum"><div class="card">
+<h2>Oferta</h2>
+<div class="meta"><input class="fld" id="client" placeholder="Nazwa klienta"><input class="fld" id="date" type="date"></div>
+<div id="lines"></div>
+<div class="sep"></div>
+<div class="ln"><span>Suma przed rabatem</span><b id="sub"></b></div>
+<div class="ln"><span>Rabat (%)</span><b><input class="fld" id="disc" type="number" min="0" max="100" value="0" style="width:70px;padding:4px 8px;text-align:right"></b></div>
+<div class="ln"><span>VAT (%)</span><b><input class="fld" id="vat" type="number" min="0" value="23" style="width:70px;padding:4px 8px;text-align:right"></b></div>
+<div class="tot"><div class="ln"><span>Razem netto</span><b class="big" id="net"></b></div><div class="ln"><span>Razem brutto</span><b id="gross"></b></div></div>
+<div class="btns"><button class="btn p" id="print">Drukuj / zapisz PDF</button><button class="btn" id="copy">Kopiuj</button><button class="btn" id="reset">Wyczyść</button></div>
+<div class="note">Szkolenia z nagrań do 2 h wliczone w cenę. Szkolenia na żywo – wycena indywidualna.</div>
+</div></div>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+const z=x=>Math.round(x).toLocaleString("pl-PL")+" zł";
+const G=[
+["Sprzedaż i wysyłka",[
+ {id:"shops",ic:"🛒",t:"Dodatkowe sklepy",s:"WooCommerce, Shoper, Shopify, IdoSell, Sellingo i inne · 500 zł / szt.",k:"qty",p:500},
+ {id:"couriers",ic:"🚚",t:"Dodatkowe integracje kurierskie",s:"200 zł / szt.",k:"qty",p:200},
+ {id:"brokers",ic:"🤝",t:"Pośrednicy kurierscy",s:"Ambro, FedEx i podobni · 500 zł / szt.",k:"qty",p:500}]],
+["Integracje i dane",[
+ {id:"erp",ic:"🧾",t:"ERP + integrator",s:"2 000 zł",k:"chk",p:2000},
+ {id:"mail",ic:"✉️",t:"Podpięcie poczty / Reactis",s:"800 zł",k:"chk",p:800},
+ {id:"pay",ic:"💳",t:"Dodatkowe integracje płatności",s:"Poza podstawowymi · 1 000 zł / szt.",k:"qty",p:1000},
+ {id:"mig",ic:"🗂️",t:"Migracja danych",s:"1 000 zł",k:"chk",p:1000}]],
+["Opieka powdrożeniowa",[
+ {id:"care",ic:"🛟",t:"Czas opieki dedykowanej",s:"2 tygodnie w cenie · miesiąc +1 000 zł",k:"sel",p:1000}]],
+["Wycena indywidualna",[
+ {id:"wf",ic:"⚙️",t:"Niestandardowe workflow",s:"Kwota wg oceny",k:"man"},
+ {id:"wms",ic:"🏭",t:"WMS",s:"Kwota wg oceny",k:"man"},
+ {id:"trn",ic:"🎓",t:"Szkolenia na żywo / rozszerzone",s:"Nagrania do 2 h w cenie",k:"man"},
+ {id:"oth",ic:"➕",t:"Inne",s:"Dowolna pozycja dodatkowa",k:"man"}]]
+];
+const ALL=G.flatMap(g=>g[1]);
+const c=$("cards");
+G.forEach(([name,items])=>{
+ const d=document.createElement("div");d.className="card";
+ d.innerHTML=`<h2>${name}</h2>`+items.map(i=>{
+  let ctl="";
+  if(i.k=="qty")ctl=`<div class="st"><button data-d="-1" data-for="${i.id}">−</button><input id="${i.id}" type="number" min="0" value="0"><button data-d="1" data-for="${i.id}">+</button></div>`;
+  if(i.k=="chk")ctl=`<label class="sw"><input id="${i.id}" type="checkbox"><i></i></label>`;
+  if(i.k=="sel")ctl=`<select class="fld" id="${i.id}"><option value="0">2 tygodnie</option><option value="1">1 miesiąc</option></select>`;
+  if(i.k=="man")ctl=`<div class="mn"><input class="fld" id="${i.id}" type="number" min="0" value="0"></div>`;
+  return `<div class="row"><div class="ic">${i.ic}</div><div><b>${i.t}</b><small>${i.s}</small></div>${ctl}<div class="pr" id="p_${i.id}"></div></div>`}).join("");
+ c.appendChild(d);
+});
+$("date").valueAsDate=new Date();
+let text="";
+function val(i){const e=$(i.id);
+ if(i.k=="qty")return Math.max(0,+e.value||0)*i.p;
+ if(i.k=="chk")return e.checked?i.p:0;
+ if(i.k=="sel")return +e.value*i.p;
+ return Math.max(0,+e.value||0);}
+function calc(){
+ const L=[["Pakiet podstawowy (Allegro + InPost)",7000]];
+ ALL.forEach(i=>{const v=val(i),p=$("p_"+i.id);
+  p.className="pr"+(v?"":" off");
+  if(i.id=="care"&&!v){p.textContent="w cenie";p.className="pr free";}
+  else p.textContent=v?z(v):"—";
+  if(v){let l=i.t;if(i.k=="qty")l+=" ×"+(+$(i.id).value);if(i.id=="care")l="Opieka powdrożeniowa – 1 miesiąc";L.push([l,v]);}});
+ const sub=L.reduce((a,x)=>a+x[1],0),dp=Math.min(100,Math.max(0,+$("disc").value||0)),d=sub*dp/100,net=sub-d,gross=net*(1+(+$("vat").value||0)/100);
+ $("lines").innerHTML=L.map(x=>`<div class="ln"><span>${x[0]}</span><b>${z(x[1])}</b></div>`).join("");
+ $("sub").textContent=z(sub);$("net").textContent=z(net);$("gross").textContent=z(gross);
+ text="Wycena wdrożenia OMS"+($("client").value?" – "+$("client").value:"")+" ("+$("date").value+")\n"+L.map(x=>"• "+x[0]+": "+z(x[1])).join("\n")+(d?"\nRabat "+dp+"%: −"+z(d):"")+"\nRazem netto: "+z(net)+"\nRazem brutto: "+z(gross)+"\nSzkolenia z nagrań do 2 h wliczone w cenę.";
+}
+document.addEventListener("input",calc);document.addEventListener("change",calc);
+document.addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(!b)return;const i=$(b.dataset.for);i.value=Math.max(0,(+i.value||0)+ +b.dataset.d);calc();});
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(text);$("copy").textContent="Skopiowano ✓";}catch(e){$("copy").textContent="Błąd kopiowania";}setTimeout(()=>$("copy").textContent="Kopiuj",1500);};
+$("print").onclick=()=>{try{window.print()}catch(e){}};
+$("reset").onclick=()=>{ALL.forEach(i=>{const e=$(i.id);if(i.k=="chk")e.checked=false;else e.value=0;});$("disc").value=0;$("client").value="";calc();};
+calc();
+</script>
+</body>
+</html>
